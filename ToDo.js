@@ -22,7 +22,8 @@ export default class Todo extends Component{
         deleteToDo: PropTypes.func.isRequired,
         id: PropTypes.string.isRequired,
         uncompleteToDo: PropTypes.func.isRequired,
-        completeToDo: PropTypes.func.isRequired
+        completeToDo: PropTypes.func.isRequired,
+        updateToDo: PropTypes.func.isRequired
     }
 
     state = {
@@ -56,6 +57,7 @@ export default class Todo extends Component{
                             returnKeyType="done"
                             onBlur={this._finishEditing} 
                             autoFocus={true}
+                            underlineColorAndroid={"transparent"}
                         />
                     ) : (
                         <Text 
@@ -83,7 +85,14 @@ export default class Todo extends Component{
                                 <Text style={styles.actionText}>✎</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity onPressOut={() => deleteToDo(id)}>
+                        <TouchableOpacity 
+                            onPressOut={
+                                (event) => {
+                                    event.stopPropagation; 
+                                    deleteToDo(id);
+                                }
+                            }
+                        >
                             <View style={styles.actionContainer}>
                                 <Text style={styles.actionText}>✖</Text>
                             </View>
@@ -93,7 +102,8 @@ export default class Todo extends Component{
             </View>
         )
     }
-    _toggleComplete = () => {
+    _toggleComplete = (event) => {
+        event.stopPropagation();
         const { 
             isCompleted, 
             uncompleteToDo, 
@@ -107,12 +117,17 @@ export default class Todo extends Component{
             completeToDo(id)
         }
     }
-    _startEditing = () => {
+    _startEditing = (event) => {
+        event.stopPropagation();
         this.setState({
             isEditing: true,
         })
     }
-    _finishEditing = () => {
+    _finishEditing = (event) => {
+        event.stopPropagation();
+        const {toDoValue} = this.state;
+        const {id, updateToDo} = this.props;
+        updateToDo(id, toDoValue);
         this.setState({
             isEditing: false
         })
@@ -169,6 +184,9 @@ const styles = StyleSheet.create({
     actionContainer: {
         marginVertical: 10,
         marginHorizontal: 10 
+    },
+    actionText: {
+        fontSize: 23
     },
     input: {
         width: width / 2,
